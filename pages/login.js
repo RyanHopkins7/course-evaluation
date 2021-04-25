@@ -1,8 +1,42 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import withSession from "../lib/session";
+import { useState } from 'react';
 
-export default function Home() {
+export default function LogIn() {
+    const [status, setStatus] = useState('');
+
+    const logIn = event => {
+        event.preventDefault();
+
+        const username = event.target.username.value;
+        const password = event.target.password.value;
+
+        fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        })
+            .then(response => response.json())
+            .then(responseJson => {
+                switch (responseJson.status) {
+                    case 'Successfully logged in.':
+                        // Redirect
+                        window.location.href = '/';
+                        break;
+                    default:
+                        setStatus(responseJson.status);
+                        break;
+                }
+            });
+    }
+
     return (
         <div>
             <Head>
@@ -10,6 +44,18 @@ export default function Home() {
             </Head>
 
             <h2>Log In</h2>
+
+            <p>{status}</p>
+
+            <form onSubmit={logIn}>
+                <label htmlFor="username">Username</label>
+                <input id="username" name="username" type="text" autoComplete="username" required />
+
+                <label htmlFor="password">Password</label>
+                <input id="password" name="password" type="password" autoComplete="new-password" required />
+
+                <button type="submit">Log In</button>
+            </form>
 
             <Link href="/createaccount">
                 <a>Create Account</a>
