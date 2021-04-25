@@ -1,6 +1,7 @@
 import withSession from '../../lib/session';
 import { connectToDatabase } from '../../util/mongodb';
 import bcrypt from 'bcrypt';
+import sanitize from 'mongo-sanitize';
 
 // VULNERABILITY: lack of rate limiting, CAPTCHA, and CSRF validation
 
@@ -8,8 +9,8 @@ export default withSession(async (req, res) => {
     if (req.method === 'POST') {
         // Create a user session
 
-        const username = req.body.username;
-        const password = req.body.password;
+        const username = sanitize(req.body.username);
+        const password = sanitize(req.body.password);
 
         if (!(username && password)) {
             res.status(400).json({
@@ -36,6 +37,7 @@ export default withSession(async (req, res) => {
 
         if (await bcrypt.compare(password, account.password)) {
             req.session.set('user', {
+                _id: account._id,
                 username: account.username,
                 type: account.type,
             });

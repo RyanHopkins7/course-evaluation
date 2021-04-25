@@ -10,6 +10,7 @@
   "dependencies": {
     "aws4": "^1.11.0",
     "bcrypt": "^5.0.1",
+    "mongo-sanitize": "^1.1.0",
     "mongodb": "^3.6.6",
     "mongodb-client-encryption": "^1.2.3",
     "next": "10.1.3",

@@ -1,1 +1,14 @@
 /* Global styles */
+
+* {
+    font-family: "Open Sans", Helvetica, "Segoe Ui", Arial, sans-serif;
+    /* color: #fc0; */
+    margin: 0;
+    padding: 0;
+}
+
+/* Header */
+.header {
+    width: 100%;
+    /* background-color: #000; */
+}

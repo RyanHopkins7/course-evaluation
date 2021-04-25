@@ -1,6 +1,7 @@
 import withSession from '../../lib/session';
 import bcrypt from 'bcrypt';
 import { connectToDatabase } from '../../util/mongodb';
+import sanitize from 'mongo-sanitize';
 
 // VULNERABILITY: lack of password entropy validation
 
@@ -8,9 +9,9 @@ export default withSession(async (req, res) => {
     if (req.method === 'POST') {
         // Create a user account and session
 
-        const username = req.body.username;
-        const password = req.body.password;
-        const accountType = req.body.type; // Account type: either student or instructor
+        const username = sanitize(req.body.username);
+        const password = sanitize(req.body.password);
+        const accountType = sanitize(req.body.type); // Account type: student or instructor (admin off limits)
         const saltRounds = 10;
 
         if (!(username && password && accountType)) {
@@ -46,13 +47,14 @@ export default withSession(async (req, res) => {
         }
 
         await appAccounts.createIndex({ username: 1 }, { unique: true });
-        await appAccounts.insertOne({
+        const newAccount = await appAccounts.insertOne({
             username: username,
             password: passwordHash,
             type: accountType
         });
 
         req.session.set('user', {
+            _id: newAccount.insertedId,
             username: username,
             type: accountType,
         });

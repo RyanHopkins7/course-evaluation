@@ -1,5 +1,8 @@
 import Head from 'next/head';
-import withSession from "../lib/session";
+import withSession from '../lib/session';
+import Header from '../components/header';
+
+import '../styles/home.module.css';
 
 export default function Home({ user }) {
     return (
@@ -7,6 +10,8 @@ export default function Home({ user }) {
             <Head>
                 <title>Course Evaluation</title>
             </Head>
+
+            <Header user={user} />
 
             <h2>Home</h2>
         </div>
@@ -27,6 +32,6 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     }
 
     return {
-        props: { user: req.session.get('user') },
+        props: { user: user },
     };
 });

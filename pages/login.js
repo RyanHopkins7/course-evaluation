@@ -52,7 +52,7 @@ export default function LogIn() {
                 <input id="username" name="username" type="text" autoComplete="username" required />
 
                 <label htmlFor="password">Password</label>
-                <input id="password" name="password" type="password" autoComplete="new-password" required />
+                <input id="password" name="password" type="password" autoComplete="current-password" required />
 
                 <button type="submit">Log In</button>
             </form>
