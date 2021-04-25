@@ -2,7 +2,7 @@ import withSession from '../../lib/session';
 import { connectToDatabase } from '../../util/mongodb';
 import bcrypt from 'bcrypt';
 
-// NOTE: a lack of rate limiting, CAPTCHA, and CSRF validation presents a security risk
+// VULNERABILITY: lack of rate limiting, CAPTCHA, and CSRF validation
 
 export default withSession(async (req, res) => {
     if (req.method === 'POST') {

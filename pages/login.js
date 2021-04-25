@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import withSession from "../lib/session";
 
 export default function Home() {
     return (
@@ -16,4 +17,20 @@ export default function Home() {
         </div>
     );
 }
+
+export const getServerSideProps = withSession(async function ({ req, res }) {
+    // Redirect to index if user already logged in
+    const user = req.session.get('user');
+
+    if (user) {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: true,
+            },
+        };
+    }
+
+    return { props: {} };
+});
 

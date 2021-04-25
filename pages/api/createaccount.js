@@ -2,6 +2,8 @@ import withSession from '../../lib/session';
 import bcrypt from 'bcrypt';
 import { connectToDatabase } from '../../util/mongodb';
 
+// VULNERABILITY: lack of password entropy validation
+
 export default withSession(async (req, res) => {
     if (req.method === 'POST') {
         // Create a user account and session
