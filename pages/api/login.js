@@ -1,23 +1,62 @@
 import withSession from '../../lib/session';
+import { connectToDatabase } from '../../util/mongodb';
+import bcrypt from 'bcrypt';
+
+// NOTE: a lack of rate limiting, CAPTCHA, and CSRF validation presents a security risk
 
 export default withSession(async (req, res) => {
     if (req.method === 'POST') {
-        // Create a session
+        // Create a user session
 
-        // TODO: get user from database 
-        req.session.set('user', {
-            id: 230,
-            admin: true,
+        const username = req.body.username;
+        const password = req.body.password;
+
+        if (!(username && password)) {
+            res.status(400).json({
+                status: 'Request invalid. Send a POST with {user:username, password:password}.',
+            });
+            return;
+        }
+
+        const { client } = await connectToDatabase();
+        const appAccounts = client.db('courseEvaluation').collection('applicationAccounts');
+
+        const account = await appAccounts.findOne({
+            username: {
+                $eq: username
+            }
         });
 
-        await req.session.save();
+        if (!account) {
+            res.status(404).json({
+                status: "Username not found.",
+            });
+            return;
+        }
 
-        res.status(200).json({
-            status: "Successfully logged in.",
-        });
+        if (await bcrypt.compare(password, account.password)) {
+            req.session.set('user', {
+                username: account.username,
+                type: account.type,
+            });
+    
+            await req.session.save();
+
+            res.status(200).json({
+                status: "Successfully logged in.",
+            });
+            return;
+        } else {
+            res.status(403).json({
+                status: "Invalid password.",
+            });
+            return;
+        }
+
     } else {
         res.status(405).json({
             status: "Method invalid. Send a POST with {user:username, password:password}.",
         });
+        return;
     }
 });
