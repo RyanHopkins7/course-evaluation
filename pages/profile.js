@@ -1,9 +1,11 @@
 import Head from 'next/head';
 import withSession from '../lib/session';
 import { useState } from 'react';
-import Link from 'next/link';
+import Header from '../components/header';
 
 export default function Profile({ user }) {
+    // Profile page with password reset
+
     const [status, setStatus] = useState('');
 
     const resetPassword = event => {
@@ -12,14 +14,13 @@ export default function Profile({ user }) {
         const oldPassword = event.target.oldPassword.value;
         const newPassword = event.target.newPassword.value;
 
-        fetch('/api/resetpassword', {
-            method: 'POST',
+        fetch(`/api/accounts/${user.username}`, {
+            method: 'PATCH',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                _id: user._id,
                 oldPassword: oldPassword,
                 newPassword: newPassword
             })
@@ -36,9 +37,7 @@ export default function Profile({ user }) {
                 <title>Profile</title>
             </Head>
 
-            <Link href="/">
-                <a>Home</a>
-            </Link>
+            <Header user={user} />
 
             <h2>Profile</h2>
 

@@ -5,15 +5,17 @@ import Header from '../components/header';
 import '../styles/home.module.css';
 
 export default function Home({ user }) {
+    // Home page
+    
     return (
         <div>
             <Head>
-                <title>Course Evaluation</title>
+                <title>Course Registration</title>
             </Head>
 
             <Header user={user} />
 
-            <h2>Home</h2>
+           {/* <h1>Home</h1> */}
         </div>
     );
 }

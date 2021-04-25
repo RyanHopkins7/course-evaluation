@@ -1,9 +1,11 @@
 import Head from 'next/head';
-import Link from 'next/link';
 import withSession from '../lib/session';
 import { useState } from 'react';
+import Header from '../components/header';
 
 export default function CreateAccount() {
+    // Create a new student or instructor account
+
     const [status, setStatus] = useState('');
 
     const createAccount = event => {
@@ -13,14 +15,13 @@ export default function CreateAccount() {
         const password = event.target.password.value;
         const accountType = event.target.accountType.value;
 
-        fetch('/api/createaccount', {
+        fetch(`/api/accounts/${username}`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                username: username,
                 password: password,
                 type: accountType
             })
@@ -28,7 +29,7 @@ export default function CreateAccount() {
             .then(response => response.json())
             .then(responseJson => {
                 switch (responseJson.status) {
-                    case 'Successfully created account.':
+                    case 'Successfully created account':
                         // Redirect
                         window.location.href = '/';
                         break;
@@ -44,6 +45,8 @@ export default function CreateAccount() {
             <Head>
                 <title>Create Account</title>
             </Head>
+
+            <Header />
 
             <h2>Create Account</h2>
 
@@ -64,10 +67,6 @@ export default function CreateAccount() {
 
                 <button type="submit">Create Account</button>
             </form>
-
-            <Link href="/login">
-                <a>Log in</a>
-            </Link>
         </div>
     );
 }

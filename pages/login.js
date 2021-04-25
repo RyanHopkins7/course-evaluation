@@ -1,9 +1,11 @@
 import Head from 'next/head';
-import Link from 'next/link';
 import withSession from "../lib/session";
 import { useState } from 'react';
+import Header from '../components/header';
 
 export default function LogIn() {
+    // Sign in
+
     const [status, setStatus] = useState('');
 
     const logIn = event => {
@@ -12,7 +14,7 @@ export default function LogIn() {
         const username = event.target.username.value;
         const password = event.target.password.value;
 
-        fetch('/api/login', {
+        fetch('/api/accounts/session', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -26,7 +28,7 @@ export default function LogIn() {
             .then(response => response.json())
             .then(responseJson => {
                 switch (responseJson.status) {
-                    case 'Successfully logged in.':
+                    case 'Successfully logged in':
                         // Redirect
                         window.location.href = '/';
                         break;
@@ -43,6 +45,8 @@ export default function LogIn() {
                 <title>Log In</title>
             </Head>
 
+            <Header />
+
             <h2>Log In</h2>
 
             <p>{status}</p>
@@ -56,10 +60,6 @@ export default function LogIn() {
 
                 <button type="submit">Log In</button>
             </form>
-
-            <Link href="/createaccount">
-                <a>Create Account</a>
-            </Link>
         </div>
     );
 }

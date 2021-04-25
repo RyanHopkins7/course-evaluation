@@ -1,20 +1,19 @@
-import withSession from '../../lib/session';
-import { connectToDatabase } from '../../util/mongodb';
-import bcrypt from 'bcrypt';
+import withSession from '../../../lib/session';
+import { connectToDatabase } from '../../../util/mongodb';
 import sanitize from 'mongo-sanitize';
+import bcrypt from 'bcrypt';
 
-// VULNERABILITY: lack of rate limiting, CAPTCHA, and CSRF validation
+// VULNERABILITIES: lack of rate limiting, CAPTCHA, CSRF validation
 
 export default withSession(async (req, res) => {
     if (req.method === 'POST') {
-        // Create a user session
-
+        // Authenticate account and create session
         const username = sanitize(req.body.username);
         const password = sanitize(req.body.password);
 
         if (!(username && password)) {
             res.status(400).json({
-                status: 'Request invalid. Send a POST with {user:username, password:password}.',
+                status: 'Invalid request. Send a POST with {username:username, password:password}',
             });
             return;
         }
@@ -30,12 +29,14 @@ export default withSession(async (req, res) => {
 
         if (!account) {
             res.status(404).json({
-                status: "Username not found.",
+                status: 'Username not found',
             });
             return;
         }
 
         if (await bcrypt.compare(password, account.password)) {
+            await req.session.destroy();
+            
             req.session.set('user', {
                 _id: account._id,
                 username: account.username,
@@ -45,19 +46,26 @@ export default withSession(async (req, res) => {
             await req.session.save();
 
             res.status(200).json({
-                status: "Successfully logged in.",
+                status: 'Successfully logged in',
             });
             return;
         } else {
             res.status(403).json({
-                status: "Invalid password.",
+                status: 'Invalid password',
             });
             return;
         }
+    } else if (req.method === 'DELETE') {
+        // Destroy session
+        await req.session.destroy();
 
+        res.status(200).json({
+            status: 'Destroyed session',
+        });
+        return;
     } else {
         res.status(405).json({
-            status: "Method invalid. Send a POST with {user:username, password:password}.",
+            status: 'Method not allowed. Allowed methods: [POST, DELETE]',
         });
         return;
     }
