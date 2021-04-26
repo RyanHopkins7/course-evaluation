@@ -39,28 +39,77 @@ export default withSession(async (req, res) => {
         return;
     }
 
+    const course = await courses.findOne({
+        _id: {
+            $eq: ObjectId(course_id)
+        }
+    });
+
+    if (!course) {
+        res.status(404).json({
+            status: 'Course not found',
+        });
+        return;
+    }
+
     if (req.method === 'GET') {
         // Get course info
-        const course = await courses.findOne({
+        res.status(200).json({
+            course: course,
+        });
+        return;
+    } else if (req.method === 'PATCH') {
+        // Update course (admin only)
+        const title = sanitize(req.body.title);
+        const credits = sanitize(req.body.credits);
+
+        if (!title && !credits) {
+            res.status(400).json({
+                status: 'Invalid request. Send POST with {title:courseTitle, credits:credits}',
+            });
+            return;
+        }
+
+        const result = await courses.updateOne({
+            _id: {
+                $eq: ObjectId(course_id)
+            }
+        }, {
+            $set: {
+                title: title || course.title,
+                credits: credits || course.credits,
+            },
+        });
+
+        if (result.modifiedCount !== 1) {
+            res.status(500).json({
+                status: 'Could not update course'
+            });
+            return;
+        }
+
+        res.status(200).json({
+            status: 'Successfully updated course',
+        });
+        return;
+    } else if (req.method === 'DELETE') {
+        // Delete course (admin only)
+        const result = await accounts.deleteOne({
             _id: {
                 $eq: ObjectId(course_id)
             }
         });
-    
-        if (course) {
+
+        if (result.deletedCount === 1) {
             res.status(200).json({
-                course: course,
+                status: 'Successfully deleted course'
             });
         } else {
-            res.status(404).json({
-                status: 'Course not found',
+            res.status(500).json({
+                status: 'Could not delete course'
             });
         }
         return;
-    } else if (req.method === 'PATCH') {
-        // Update course (admin only)
-    } else if (req.method === 'DELETE') {
-        // Delete course (admin only)
     } else {
         res.status(405).json({
             status: 'Method not allowed. Allowed methods: [GET, PATCH, DELETE]',
