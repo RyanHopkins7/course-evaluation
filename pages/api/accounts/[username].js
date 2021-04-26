@@ -12,7 +12,7 @@ export default withSession(async (req, res) => {
     const saltRounds = 10;
     const { client } = await connectToDatabase();
     const accounts = client.db('courseEvaluation').collection('accounts');
-    
+
     if (['GET', 'PATCH', 'DELETE'].includes(req.method)) {
         if (!(user && user._id)) {
             res.status(403).json({
@@ -51,7 +51,7 @@ export default withSession(async (req, res) => {
 
     if (req.method === 'GET') {
         // Get account info
-        const sessionAccount = await accounts.findOne({
+        const account = await accounts.findOne({
             username: {
                 $eq: username
             }
@@ -59,18 +59,17 @@ export default withSession(async (req, res) => {
 
         if (user.type === 'admin') {
             res.status(200).json({
-                account: sessionAccount,
+                account: account,
             });
         } else {
             res.status(200).json({
                 account: {
-                    _id: sessionAccount._id,
-                    username: sessionAccount.username,
-                    type: sessionAccount.type,
+                    _id: account._id,
+                    username: account.username,
+                    type: account.type,
                 },
             });
         }
-        return;
     } else if (req.method === 'POST') {
         // Create new account
         const password = sanitize(req.body.password);
@@ -133,7 +132,6 @@ export default withSession(async (req, res) => {
         res.status(201).json({
             status: 'Successfully created account',
         });
-        return;
     } else if (req.method === 'PATCH') {
         // Reset password
         const oldPassword = sanitize(req.body.oldPassword);
@@ -165,21 +163,16 @@ export default withSession(async (req, res) => {
                 },
             });
 
-            if (result.modifiedCount === 1) {
-                res.status(200).json({
-                    status: 'Successfully reset password'
-                });
-            } else {
-                res.status(500).json({
-                    status: 'Could not reset password'
-                });
-            }
+            res.status(result.modifiedCount === 1 ? 200 : 500).json({
+                status: result.modifiedCount === 1
+                    ? 'Successfully reset password'
+                    : 'Could not reset password',
+            });
         } else {
             res.status(401).json({
                 status: 'Invalid old password',
             });
         }
-        return;
     } else if (req.method === 'DELETE') {
         // Delete account
         const result = await accounts.deleteOne({
@@ -188,20 +181,14 @@ export default withSession(async (req, res) => {
             }
         });
 
-        if (result.deletedCount === 1) {
-            res.status(200).json({
-                status: 'Successfully deleted account'
-            });
-        } else {
-            res.status(500).json({
-                status: 'Could not delete account'
-            });
-        }
-        return;
+        res.status(result.deletedCount === 1 ? 200 : 500).json({
+            status: result.deletedCount === 1
+                ? 'Successfully deleted account'
+                : 'Could not delete account',
+        });
     } else {
         res.status(405).json({
             status: 'Method not allowed. Allowed methods: [GET, POST, PATCH, DELETE]',
         });
-        return;
     }
 });

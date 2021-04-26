@@ -18,7 +18,7 @@ export default withSession(async (req, res) => {
     }
 
     try {
-        ObjectId(courseId);
+        ObjectId(course_id);
     } catch (err) {
         res.status(400).json({
             status: 'Invalid course id. Must be 12 bytes',
@@ -57,7 +57,6 @@ export default withSession(async (req, res) => {
         res.status(200).json({
             course: course,
         });
-        return;
     } else if (req.method === 'PATCH') {
         // Update course (admin only)
         const title = sanitize(req.body.title);
@@ -81,17 +80,11 @@ export default withSession(async (req, res) => {
             },
         });
 
-        if (result.modifiedCount !== 1) {
-            res.status(500).json({
-                status: 'Could not update course'
-            });
-            return;
-        }
-
-        res.status(200).json({
-            status: 'Successfully updated course',
+        res.status(result.modifiedCount === 1 ? 200 : 500).json({
+            status: result.modifiedCount === 1
+                ? 'Successfully updated course'
+                : 'Could not update course',
         });
-        return;
     } else if (req.method === 'DELETE') {
         // Delete course (admin only)
         const result = await accounts.deleteOne({
@@ -100,20 +93,14 @@ export default withSession(async (req, res) => {
             }
         });
 
-        if (result.deletedCount === 1) {
-            res.status(200).json({
-                status: 'Successfully deleted course'
-            });
-        } else {
-            res.status(500).json({
-                status: 'Could not delete course'
-            });
-        }
-        return;
+        res.status(result.deletedCount === 1 ? 200 : 500).json({
+            status: result.modifiedCount === 1
+                ? 'Successfully deleted course'
+                : 'Could not delete course',
+        });
     } else {
         res.status(405).json({
             status: 'Method not allowed. Allowed methods: [GET, PATCH, DELETE]',
         });
-        return;
     }
 });

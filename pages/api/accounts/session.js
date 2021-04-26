@@ -48,12 +48,10 @@ export default withSession(async (req, res) => {
             res.status(200).json({
                 status: 'Successfully logged in',
             });
-            return;
         } else {
             res.status(403).json({
                 status: 'Invalid password',
             });
-            return;
         }
     } else if (req.method === 'DELETE') {
         // Destroy session
@@ -62,11 +60,9 @@ export default withSession(async (req, res) => {
         res.status(200).json({
             status: 'Destroyed session',
         });
-        return;
     } else {
         res.status(405).json({
             status: 'Method not allowed. Allowed methods: [POST, DELETE]',
         });
-        return;
     }
 });

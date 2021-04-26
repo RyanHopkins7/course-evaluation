@@ -26,7 +26,6 @@ export default withSession(async (req, res) => {
         res.status(200).json({
             courses: await courses.find().toArray(),
         });
-        return;
     } else if (req.method === 'POST') {
         // Create new course (admin only)
         const title = sanitize(req.body.title);
@@ -62,11 +61,9 @@ export default withSession(async (req, res) => {
             status: 'Successfully inserted course',
             insertedId: newCourse.insertedId
         });
-        return;
     } else {
         res.status(405).json({
             status: "Method not allowed. Allowed methods: [GET, POST]",
         });
-        return;
     }
 });
