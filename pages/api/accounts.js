@@ -15,15 +15,15 @@ export default withSession(async (req, res) => {
         }
 
         const { client } = await connectToDatabase();
-        const appAccounts = client.db('courseEvaluation').collection('applicationAccounts');
+        const accounts = client.db('courseEvaluation').collection('accounts');
 
-        const userAccount = await appAccounts.findOne({
+        const sessionAccount = await accounts.findOne({
             _id: {
                 $eq: ObjectId(user._id)
             }
         });
 
-        if (userAccount.type !== 'admin') {
+        if (sessionAccount.type !== 'admin') {
             res.status(401).json({
                 status: "Unauthorized",
             });
@@ -31,7 +31,7 @@ export default withSession(async (req, res) => {
         }
 
         res.status(200).json({
-            accounts: await appAccounts.find().toArray(),
+            accounts: await accounts.find().toArray(),
         });
         return;
     } else {

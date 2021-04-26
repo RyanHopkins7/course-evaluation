@@ -61,8 +61,8 @@ export default function CreateAccount() {
 
                 <label htmlFor="accountType">Account Type</label>
                 <select id="accountType" name="accountType">
-                    <option value="student">Student</option>
-                    <option value="instructor">Instructor</option>
+                    <option value="students">Students</option>
+                    <option value="instructors">Instructors</option>
                 </select>
 
                 <button type="submit">Create Account</button>

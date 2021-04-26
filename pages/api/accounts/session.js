@@ -19,9 +19,9 @@ export default withSession(async (req, res) => {
         }
 
         const { client } = await connectToDatabase();
-        const appAccounts = client.db('courseEvaluation').collection('applicationAccounts');
+        const accounts = client.db('courseEvaluation').collection('accounts');
 
-        const account = await appAccounts.findOne({
+        const account = await accounts.findOne({
             username: {
                 $eq: username
             }
