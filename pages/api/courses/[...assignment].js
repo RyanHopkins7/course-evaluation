@@ -76,7 +76,7 @@ export default withSession(async (req, res) => {
     }
 
     // Only allow admins or account owners to assign or unassign
-    if (assignmentType !== 'GET'
+    if (req.method !== 'GET'
         && sessionAccount.username !== username
         && sessionAccount.type !== 'admin') {
 
@@ -94,52 +94,40 @@ export default withSession(async (req, res) => {
                 assigned: !!(account.courses && account.courses.includes(course_id)),
             });
         } else {
-            // Get all students and instructors assigned to course 
-            // (assigned instructors or admins only)
-            if (!['admin', 'instructor'].includes(sessionAccount.type)
-                || !sessionAccount.courses
-                || !sessionAccount.courses.includes(course_id)) {
-
-                res.status(401).json({
-                    status: 'Unauthorized',
-                });
-                return;
-
-            }
-
+            // Get all students and instructors assigned to a course
             const assignedAccounts = accounts.find({
                 type: {
                     $eq: assignmentType
                 },
-                courses: {
-                    $in: ObjectId(course_id)
-                }
+                courses: ObjectId(course_id)
             }, {
                 _id: 1,
                 username: 1
-            }).toArray;
+            });
 
             res.status(200).json({
-                [assignmentType]: assignedAccounts,
+                [assignmentType]: await assignedAccounts.toArray(),
             });
         }
     } else if (req.method === 'POST') {
         // Assign user to course
-        if (account.courses && account.courses.includes(course_id)) {
+        if (account.courses && account.courses.some(course => course.toString() === course_id)) {
             res.status(409).json({
                 status: 'User already assigned to course',
             });
             return;
         }
 
-        const result = accounts.updateOne({
+        const result = await accounts.updateOne({
             _id: {
                 $eq: account._id
             }
         }, {
             $addToSet: {
-                courses: [ObjectId(course_id)]
+                courses: ObjectId(course_id)
             }
+        }, {
+            upsert: true
         });
 
         res.status(result.modifiedCount === 1 ? 201 : 500).json({

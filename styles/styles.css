@@ -10,8 +10,13 @@ html, body {
     max-width: 100%;
 }
 
+table, th, td {
+    border: 1px solid #000;
+    padding: .25rem;
+}
+
 a {
-    color: #fc0;
+    color: #000;
     text-decoration: none;
 }
 
@@ -28,10 +33,11 @@ a:hover {
 
 .dropdownItem {
     padding: .5rem;
-    background-color: #000; 
+    background-color: #000;
 }
 
 /* Header */
+
 .header {
     padding: .5rem .75rem;
     color: #fff;
@@ -41,10 +47,21 @@ a:hover {
     justify-content: space-between;
 }
 
+.header a {
+    color: #fc0;
+}
+
 .header .navItem {
     padding: 1rem;
+    display: inline-block;
 }
 
 .header .navProfile:hover {
     cursor: pointer;
+}
+
+@media only screen and (max-width: 730px) {
+    .header .brandLogo {
+        display: none !important;
+    }
 }

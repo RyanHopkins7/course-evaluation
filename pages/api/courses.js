@@ -1,6 +1,7 @@
 import withSession from '../../lib/session';
 import { connectToDatabase } from '../../util/mongodb';
 import { ObjectId } from 'mongodb';
+import sanitize from 'mongo-sanitize';
 
 export default withSession(async (req, res) => {
     const user = req.session.get('user');
@@ -45,9 +46,26 @@ export default withSession(async (req, res) => {
             return;
         }
 
+        const creditsInt = parseInt(credits);
+
+        if (!creditsInt) {
+            res.status(400).json({
+                status: 'Invalid request. Credits must be an integer',
+            });
+            return;
+        }
+
+        if (creditsInt < 0 || creditsInt > 6) {
+            res.status(400).json({
+                status: 'Invalid request.' + 
+                        'Credits must be greater than or equal to 0 less than or equal 6',
+            });
+            return;
+        }
+
         const newCourse = await courses.insertOne({
             title: title,
-            credits: credits
+            credits: creditsInt
         });
         
         if (!newCourse.insertedId) {

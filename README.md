@@ -1,5 +1,5 @@
 # Course Evaluation
-A course evaluation system made with Next.js / MongoDB.
+A simple course evaluation system made with Next.js / MongoDB
 
 ## Getting Started
 
@@ -12,24 +12,9 @@ yarn dev
 ```
 
 ## Requirements
-### Instructor
-1. Create account
-2. Log in
-3. Change password
-4. Display student roster for courses they're assigned
-5. See evaluation results for courses they're assigned
-
-### Student
-1. Create account
-2. Log in
-3. Change password
-4. Register for courses
-5. Check survey status for registered courses
-6. Take survey for registered courses
-
-### Admin
-1. CRUD all instructors
-2. CRUD all students
-3. CRUD all classes
-4. Assign instructors to classes
-5. Create evaluation questions
+1. Create accounts Alice and Jon and log in
+2. Create course CS1011 and assign Jon to teach it
+3. Alice registers for CS1011
+4. Alice takes survey of CS1011
+5. Jon lists the roster for CS1011
+6. Jon reviews the survey responses for CS1011

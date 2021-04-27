@@ -3,7 +3,7 @@ import withSession from '../lib/session';
 import { useState } from 'react';
 import Header from '../components/header';
 
-export default function CreateAccount() {
+export default function CreateAccount({ server }) {
     // Create a new student or instructor account
 
     const [status, setStatus] = useState('');
@@ -15,7 +15,7 @@ export default function CreateAccount() {
         const password = event.target.password.value;
         const accountType = event.target.accountType.value;
 
-        fetch(`/api/accounts/${username}`, {
+        fetch(`${server}/api/accounts/${username}`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -56,14 +56,20 @@ export default function CreateAccount() {
                 <label htmlFor="username">Username</label>
                 <input id="username" name="username" type="text" autoComplete="username" required />
 
+                <br />
+
                 <label htmlFor="password">Password</label>
                 <input id="password" name="password" type="password" autoComplete="new-password" required />
+
+                <br />
 
                 <label htmlFor="accountType">Account Type</label>
                 <select id="accountType" name="accountType">
                     <option value="students">Students</option>
                     <option value="instructors">Instructors</option>
                 </select>
+
+                <br />
 
                 <button type="submit">Create Account</button>
             </form>
@@ -74,6 +80,7 @@ export default function CreateAccount() {
 export const getServerSideProps = withSession(async function ({ req, res }) {
     // Redirect to index if user already logged in
     const user = req.session.get('user');
+    const { SERVER } = process.env;
 
     if (user) {
         return {
@@ -84,6 +91,6 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
         };
     }
 
-    return { props: {} };
+    return { props: { server: SERVER } };
 });
 

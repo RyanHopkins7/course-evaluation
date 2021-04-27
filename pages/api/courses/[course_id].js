@@ -60,11 +60,29 @@ export default withSession(async (req, res) => {
     } else if (req.method === 'PATCH') {
         // Update course (admin only)
         const title = sanitize(req.body.title);
-        const credits = sanitize(req.body.credits);
+        const credits = sanitize(req.body.credits) || '0';
 
         if (!title && !credits) {
             res.status(400).json({
                 status: 'Invalid request. Send POST with {title:courseTitle, credits:credits}',
+            });
+            return;
+        }
+
+        const creditsInt = parseInt(credits);
+
+        // NaN means parseInt failed
+        if (creditsInt !== creditsInt) {
+            res.status(400).json({
+                status: 'Invalid request. Credits must be an integer',
+            });
+            return;
+        }
+
+        if (creditsInt < 0 || creditsInt > 6) {
+            res.status(400).json({
+                status: 'Invalid request.' + 
+                        'Credits must be greater than or equal to 0 less than or equal 6',
             });
             return;
         }
@@ -76,7 +94,7 @@ export default withSession(async (req, res) => {
         }, {
             $set: {
                 title: title || course.title,
-                credits: credits || course.credits,
+                credits: creditsInt || course.credits,
             },
         });
 

@@ -1,5 +1,4 @@
 import withSession from '../../../lib/session';
-import sanitize from 'mongo-sanitize';
 import { connectToDatabase } from '../../../util/mongodb';
 import { ObjectId } from 'mongodb';
 

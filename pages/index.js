@@ -1,21 +1,46 @@
 import Head from 'next/head';
 import withSession from '../lib/session';
 import Header from '../components/header';
+import AccountsTable from '../components/accountsTable';
+import Link from 'next/link';
+import CoursesTable from '../components/coursesTable';
 
-import '../styles/home.module.css';
-
-export default function Home({ user }) {
+export default function Home({ user, server }) {
     // Home page
-    
+
     return (
         <div>
             <Head>
-                <title>Course Registration</title>
+                <title>Course Registration And Evaluation</title>
             </Head>
 
             <Header user={user} />
 
-           {/* <h1>Home</h1> */}
+            <h2>
+                <Link href="/courses">
+                    <a>Courses</a>
+                </Link>
+            </h2>
+
+            <CoursesTable user={user} server={server} />
+
+            <h2>
+                <Link href="/evaluations">
+                    <a>Evaluations</a>
+                </Link>
+            </h2>
+
+            {user.type === 'admin' &&
+                <div>
+                    <h2>
+                        <Link href="/accounts">
+                            <a>Accounts</a>
+                        </Link>
+                    </h2>
+
+                    <AccountsTable server={server} />
+                </div>
+            }
         </div>
     );
 }
@@ -23,6 +48,7 @@ export default function Home({ user }) {
 export const getServerSideProps = withSession(async function ({ req, res }) {
     // Get user or redirect to /login
     const user = req.session.get('user');
+    const { SERVER } = process.env;
 
     if (!user) {
         return {
@@ -34,6 +60,6 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     }
 
     return {
-        props: { user: user },
+        props: { user: user, server: SERVER },
     };
 });

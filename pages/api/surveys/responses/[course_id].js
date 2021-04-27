@@ -105,6 +105,13 @@ export default withSession(async (req, res) => {
             return;
         }
 
+        if (!responses.every(response => typeof response === 'string')) {
+            res.status(400).json({
+                status: 'Invalid request. Responses must be text strings only',
+            });
+            return;
+        }
+
         if (await surveyResponses.findOne({
             completedBy: {
                 $eq: ObjectId(studentId)
@@ -122,7 +129,7 @@ export default withSession(async (req, res) => {
         const result = await surveyResponses.insertOne({
             completedBy: sessionAccount._id,
             course: ObjectId(course_id),
-            responses: responses,
+            responses: responses.toJSON(),
             timeCompleted: new Date()
         });
 

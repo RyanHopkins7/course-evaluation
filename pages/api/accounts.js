@@ -1,6 +1,7 @@
 import withSession from '../../lib/session';
 import { connectToDatabase } from '../../util/mongodb';
 import { ObjectId } from 'mongodb';
+import { fromJS } from 'immutable';
 
 export default withSession(async (req, res) => {
     const user = req.session.get('user');
@@ -23,16 +24,19 @@ export default withSession(async (req, res) => {
 
     if (req.method === 'GET') {
         // Get all accounts (admin only)
-        if (sessionAccount.type !== 'admin') {
-            res.status(401).json({
-                status: "Unauthorized",
+        if (sessionAccount.type === 'admin') {
+            res.status(200).json({
+                accounts: await accounts.find().toArray(),
             });
-            return;
+        } else {
+            const retrievedAccounts = await accounts.find().toArray()
+
+            res.status(200).json({
+                accounts: fromJS(retrievedAccounts)
+                    .map(account => account.delete('password'))
+                    .toJS(),
+            });
         }
-        
-        res.status(200).json({
-            accounts: await accounts.find().toArray(),
-        });
     } else {
         res.status(405).json({
             status: "Method not allowed. Allowed methods: [GET]",

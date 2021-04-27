@@ -1,22 +1,29 @@
 import Head from 'next/head';
 import withSession from '../lib/session';
 import Header from '../components/header';
-import CoursesTable from '../components/coursesTable';
+import { useState, useEffect } from 'react';
 
-export default function Courses({ user, server }) {
-    // Courses page
+export default function Evaluations({ user, server }) {
+    // Evaluations page
+    const [evaluations, setEvaluations] = useState();
+
+    useEffect(() => {
+        fetch(`${server}/api/surveys/responses`)
+            .then(response => response.json())
+            .then(responseJson => {
+                console.log(responseJson);
+            });
+    }, []);
 
     return (
         <div>
             <Head>
-                <title>Courses</title>
+                <title>Evaluations</title>
             </Head>
 
             <Header user={user} />
-            
-            <h2>Courses</h2>
 
-            <CoursesTable user={user} server={server} />
+            <h2>Evaluations</h2>
         </div>
     );
 }

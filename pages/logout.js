@@ -1,7 +1,7 @@
 import withSession from '../lib/session';
 
 export default function LogOut() {
-    return <h1>Logging out...</h1>;
+    return <h2>Logging out...</h2>;
 }
 
 export const getServerSideProps = withSession(async function ({ req, res }) {

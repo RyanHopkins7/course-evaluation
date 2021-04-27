@@ -137,7 +137,13 @@ export default withSession(async (req, res) => {
         const oldPassword = sanitize(req.body.oldPassword);
         const newPassword = sanitize(req.body.newPassword);
 
-        if (!(oldPassword && newPassword)) {
+        const sessionAccount = await accounts.findOne({
+            _id: {
+                $eq: ObjectId(user._id)
+            }
+        });
+
+        if (!newPassword && (!oldPassword || sessionAccount.type !== 'admin')) {
             res.status(400).json({
                 status: 'Invalid request. Send a PATCH with {oldPassword:oldPassword, newPassword:newPassword}',
             });
@@ -150,7 +156,10 @@ export default withSession(async (req, res) => {
             }
         });
 
-        if (await bcrypt.compare(oldPassword, account.password)) {
+        // Admin can reset passwords for non-admin accounts
+        if ((sessionAccount.type === 'admin' && account.type !== 'admin')
+            || await bcrypt.compare(oldPassword, account.password)) {
+
             const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
 
             const result = await accounts.updateOne({
@@ -168,6 +177,7 @@ export default withSession(async (req, res) => {
                     ? 'Successfully reset password'
                     : 'Could not reset password',
             });
+
         } else {
             res.status(401).json({
                 status: 'Invalid old password',

@@ -3,7 +3,7 @@ import withSession from "../lib/session";
 import { useState } from 'react';
 import Header from '../components/header';
 
-export default function LogIn() {
+export default function LogIn({ server }) {
     // Sign in
 
     const [status, setStatus] = useState('');
@@ -14,7 +14,7 @@ export default function LogIn() {
         const username = event.target.username.value;
         const password = event.target.password.value;
 
-        fetch('/api/accounts/session', {
+        fetch(`${server}/api/accounts/session`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -55,8 +55,12 @@ export default function LogIn() {
                 <label htmlFor="username">Username</label>
                 <input id="username" name="username" type="text" autoComplete="username" required />
 
+                <br />
+
                 <label htmlFor="password">Password</label>
                 <input id="password" name="password" type="password" autoComplete="current-password" required />
+
+                <br />
 
                 <button type="submit">Log In</button>
             </form>
@@ -67,6 +71,7 @@ export default function LogIn() {
 export const getServerSideProps = withSession(async function ({ req, res }) {
     // Redirect to index if user already logged in
     const user = req.session.get('user');
+    const { SERVER } = process.env;
 
     if (user) {
         return {
@@ -77,6 +82,6 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
         };
     }
 
-    return { props: {} };
+    return { props: { server: SERVER } };
 });
 
