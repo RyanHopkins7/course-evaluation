@@ -78,51 +78,57 @@ export default function EvaluationsTable(props) {
             {
                 props.user.type === 'students'
                     ?
-                    <table>
-                        <thead>
-                            <tr>
-                                <th></th>
-                                {courses.map((course, i) => <th key={i} scope="col">{course.get('title')}</th>)}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <th>Time Completed</th>
-                                {
-                                    courses.map((course, i) =>
-                                        <td key={i}>
-                                            {evalResponses.some(response => course.get('_id') === response.get('course')) &&
-                                                <p>
-                                                    {evalResponses
-                                                        .filter(response => course.get('_id') === response.get('course'))
-                                                        .first()
-                                                        .get('timeCompleted')
+                    <div>
+                        {courses.isEmpty()
+                            ? <h3>No evaluations found</h3>
+                            :
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        {courses.map((course, i) => <th key={i} scope="col">{course.get('title')}</th>)}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th>Time Completed</th>
+                                        {
+                                            courses.map((course, i) =>
+                                                <td key={i}>
+                                                    {evalResponses.some(response => course.get('_id') === response.get('course')) &&
+                                                        <p>
+                                                            {evalResponses
+                                                                .filter(response => course.get('_id') === response.get('course'))
+                                                                .first()
+                                                                .get('timeCompleted')
+                                                            }
+                                                        </p>
                                                     }
-                                                </p>
-                                            }
-                                        </td>
-                                    )
-                                }
-                            </tr>
-                            <tr>
-                                <th scope="row">Status</th>
-                                {
-                                    courses.map((course, i) =>
-                                        <td key={i}>
-                                            {!evalResponses.some(response => course.get('_id') === response.get('course'))
-                                                ?
-                                                <Link href={`/evaluations/${course.get('_id')}`}>
-                                                    <button>Fill Out Evaluation</button>
-                                                </Link>
-                                                :
-                                                <p>Response submitted</p>
-                                            }
-                                        </td>
-                                    )
-                                }
-                            </tr>
-                        </tbody>
-                    </table>
+                                                </td>
+                                            )
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Status</th>
+                                        {
+                                            courses.map((course, i) =>
+                                                <td key={i}>
+                                                    {!evalResponses.some(response => course.get('_id') === response.get('course'))
+                                                        ?
+                                                        <Link href={`/evaluations/${course.get('_id')}`}>
+                                                            <button>Fill Out Evaluation</button>
+                                                        </Link>
+                                                        :
+                                                        <p>Response submitted</p>
+                                                    }
+                                                </td>
+                                            )
+                                        }
+                                    </tr>
+                                </tbody>
+                            </table>
+                        }
+                    </div>
                     :
                     <div>
                         {evalResponses.isEmpty()
@@ -144,7 +150,7 @@ export default function EvaluationsTable(props) {
                                                 {evalResponses
                                                     .filter(response => course.get('_id') === response.get('course'))
                                                     .size / (
-                                                        coursesToStudents.get(course.get('_id')) 
+                                                        coursesToStudents.get(course.get('_id'))
                                                             ? coursesToStudents.get(course.get('_id')).size
                                                             : 0
                                                     ) * 100

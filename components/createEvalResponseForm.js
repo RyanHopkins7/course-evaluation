@@ -42,21 +42,27 @@ export default function CreateEvalResponseForm(props) {
     }
 
     return (
-        <form onSubmit={createResponse}>
-            <h3>Submit Course Evaluation</h3>
+        <div>
+            {questions.isEmpty()
+                ? <h3>No evaluation questions found</h3>
+                :
+                <form onSubmit={createResponse}>
+                    <h3>Submit Course Evaluation</h3>
 
-            <p>{status}</p>
+                    <p>{status}</p>
 
-            {
-                questions.map((question, i) => (
-                    <div key={i}>
-                        <label htmlFor={question}>{question}</label>
-                        <input id={question} name={question} type="text" required />
-                    </div>
-                ))
+                    {
+                        questions.map((question, i) => (
+                            <div key={i}>
+                                <label htmlFor={question}>{question}</label>
+                                <input id={question} name={question} type="text" required />
+                            </div>
+                        ))
+                    }
+
+                    <button type="submit">Submit Response</button>
+                </form>
             }
-
-            <button type="submit">Submit Response</button>
-        </form>
+        </div>
     )
 }

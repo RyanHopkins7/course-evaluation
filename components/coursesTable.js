@@ -173,71 +173,79 @@ export default function CoursesTable(props) {
                         </tr>
                     </thead>
                     <tbody>
-                        {courses.map((course, i) =>
-                            <tr key={i}>
-                                {course
-                                    .entrySeq()
-                                    .toList()
-                                    .push(['instructors', null])
-                                    .push(['students', null])
-                                    .map((entry, i) => {
-                                        const [key, val] = entry;
+                        {courses.map((course, i) => {
+                            if (props.user.type === 'instructors'
+                                && coursesToInstructors.get(course.get('_id'))
+                                && !coursesToInstructors.get(course.get('_id')).some(instructor => instructor.get('username') === props.user.username)) {
 
-                                        return (
-                                            <td key={i}>
-                                                {val}
+                                return null;
 
-                                                {key === 'instructors' &&
-                                                    <div>
-                                                        {coursesToInstructors.get(course.get('_id'))
-                                                            && coursesToInstructors.get(course.get('_id')).map(
-                                                                (instructor, i) => <p key={i}>{instructor.get('username')}</p>
-                                                            )
-                                                        }
-                                                        {props.user.type === 'admin' &&
-                                                            <form onSubmit={assignCourse}>
-                                                                <input type="hidden" name="course_id" value={course.get('_id')}></input>
-                                                                <input type="hidden" name="type" value='instructors'></input>
-                                                                <select name="username">
-                                                                    {instructors.map((instructor, i) =>
-                                                                        <option key={i} value={instructor.get('username')}>
-                                                                            {instructor.get('username')}
-                                                                        </option>
-                                                                    ).toJS()}
-                                                                </select>
-                                                                <button type="submit">Assign instructor</button>
-                                                            </form>
-                                                        }
-                                                    </div>
-                                                }
+                            }
 
-                                                {key === 'students' &&
-                                                    <div>
-                                                        {coursesToStudents.get(course.get('_id'))
-                                                            && coursesToStudents.get(course.get('_id')).map(
-                                                                (student, i) => <p key={i}>{student.get('username')}</p>
-                                                            )
-                                                        }
+                            return (
+                                <tr key={i}>
+                                    {course
+                                        .entrySeq()
+                                        .toList()
+                                        .push(['instructors', null])
+                                        .push(['students', null])
+                                        .map((entry, i) => {
+                                            const [key, val] = entry;
 
-                                                        {props.user.type === 'students' &&
-                                                            <form onSubmit={assignCourse}>
-                                                                <input type="hidden" name="course_id" value={course.get('_id')}></input>
-                                                                <input type="hidden" name="type" value='students'></input>
-                                                                <input type="hidden" name="username" value={props.user.username}></input>
+                                            return (
+                                                <td key={i}>
+                                                    {val}
 
-                                                                <button type="submit">Register</button>
-                                                            </form>
-                                                        }
-                                                    </div>
-                                                }
-                                            </td>
-                                        );
-                                    })
-                                }
-                            </tr>
-                        )
-                        }
+                                                    {key === 'instructors' &&
+                                                        <div>
+                                                            {coursesToInstructors.get(course.get('_id'))
+                                                                && coursesToInstructors.get(course.get('_id')).map(
+                                                                    (instructor, i) => <p key={i}>{instructor.get('username')}</p>
+                                                                )
+                                                            }
+                                                            {props.user.type === 'admin' &&
+                                                                <form onSubmit={assignCourse}>
+                                                                    <input type="hidden" name="course_id" value={course.get('_id')}></input>
+                                                                    <input type="hidden" name="type" value='instructors'></input>
+                                                                    <select name="username">
+                                                                        {instructors.map((instructor, i) =>
+                                                                            <option key={i} value={instructor.get('username')}>
+                                                                                {instructor.get('username')}
+                                                                            </option>
+                                                                        ).toJS()}
+                                                                    </select>
+                                                                    <button type="submit">Assign instructor</button>
+                                                                </form>
+                                                            }
+                                                        </div>
+                                                    }
 
+                                                    {key === 'students' &&
+                                                        <div>
+                                                            {coursesToStudents.get(course.get('_id'))
+                                                                && coursesToStudents.get(course.get('_id')).map(
+                                                                    (student, i) => <p key={i}>{student.get('username')}</p>
+                                                                )
+                                                            }
+
+                                                            {props.user.type === 'students' &&
+                                                                <form onSubmit={assignCourse}>
+                                                                    <input type="hidden" name="course_id" value={course.get('_id')}></input>
+                                                                    <input type="hidden" name="type" value='students'></input>
+                                                                    <input type="hidden" name="username" value={props.user.username}></input>
+
+                                                                    <button type="submit">Register</button>
+                                                                </form>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </td>
+                                            );
+                                        })
+                                    }
+                                </tr>
+                            )
+                        })}
                     </tbody>
                 </table>
             }

@@ -24,6 +24,7 @@ export default function CoursesTable(props) {
             fetch(`${props.server}/api/accounts/_id/${response.get('completedBy')}`)
                 .then(response => response.json())
                 .then(responseJson => {
+                    console.log(responseJson);
                     setEvalResponsesParsed(
                         prevEvalResponsesParsed => prevEvalResponsesParsed
                             .push(

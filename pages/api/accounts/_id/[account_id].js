@@ -22,13 +22,6 @@ export default withSession(async (req, res) => {
         }
     });
 
-    if (!['admin', 'instructor'].includes(sessionAccount.type)) {
-        res.status(401).json({
-            status: 'Unauthorized',
-        });
-        return;
-    }
-
     try {
         ObjectId(account_id);
     } catch (err) {

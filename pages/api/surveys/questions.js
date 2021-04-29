@@ -31,8 +31,10 @@ export default withSession(async (req, res) => {
 
     if (req.method === 'GET') {
         // Get all questions
+        const questionsQuery = await surveyQuestions.findOne();
+
         res.status(200).json({
-            questions: (await surveyQuestions.findOne()).questions || [],
+            questions: questionsQuery ? (questionsQuery.questions || []) : [],
         });
     } else if (req.method === 'POST') {
         // Create new question (admin only)
