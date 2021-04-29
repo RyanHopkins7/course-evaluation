@@ -32,13 +32,13 @@ export default withSession(async (req, res) => {
     if (req.method === 'GET') {
         // Get all questions
         res.status(200).json({
-            questions: await surveyQuestions.findOne({}, {
-                questions: 1
-            }) || [],
+            questions: (await surveyQuestions.findOne()).questions || [],
         });
     } else if (req.method === 'POST') {
         // Create new question (admin only)
         const newQuestion = sanitize(req.body.question);
+
+        // TODO: what about collissions?
 
         if (!newQuestion) {
             res.status(400).json({
@@ -47,16 +47,16 @@ export default withSession(async (req, res) => {
             return;
         }
 
-        const result = accounts.updateOne({}, {
+        const result = await surveyQuestions.updateOne({}, {
             $addToSet: {
-                questions: [newQuestion]
+                questions: newQuestion
             }
         }, {
             upsert: true
         });
 
-        res.status(result.modifiedCount === 1 ? 200 : 500).json({
-            status: result.modifiedCount === 1 
+        res.status((result.modifiedCount === 1 || result.upsertedCount === 1) ? 200 : 500).json({
+            status: (result.modifiedCount === 1 || result.upsertedCount === 1) 
                 ? 'Successfully inserted question' 
                 : 'Could not insert new question',
         });

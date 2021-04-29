@@ -41,7 +41,7 @@ export default function AccountsTable(props) {
                                         return key !== 'courses' &&
                                             <td key={i}>
                                                 {val}
-                                            </td>;
+                                            </td>
                                     })}
                                 </tr>
                             )

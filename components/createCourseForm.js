@@ -39,7 +39,7 @@ export default function CreateCourseForm(props) {
                     <h3>Create New Course</h3>
 
                     <label htmlFor="title">Title</label>
-                    <input id="title" name="title" required />
+                    <input id="title" name="title" type="text" required />
 
                     <br />
 

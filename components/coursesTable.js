@@ -68,6 +68,7 @@ export default function CoursesTable(props) {
         });
     }, [courses]);
 
+    // TODO: it'd be better to raise the scope of coursesToStudents and courses to parent element
     useEffect(() => {
         // Get students for each course
         courses.forEach(course => {

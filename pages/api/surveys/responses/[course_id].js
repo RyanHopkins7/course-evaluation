@@ -82,7 +82,7 @@ export default withSession(async (req, res) => {
         // Submit new survey response (student only)
         const responses = Map(sanitize(req.body.responses));
 
-        if (sessionAccount.type !== 'student' || !sessionAccount.courses.includes(course_id)) {
+        if (sessionAccount.type !== 'students' || !sessionAccount.courses.some(course => course.toString() === course_id)) {
             res.status(401).json({
                 status: 'Unauthorized',
             });
@@ -96,13 +96,11 @@ export default withSession(async (req, res) => {
             return;
         }
 
-        if (!Set.fromKeys(responses).equals(Set(await surveyQuestions.findOne({}, {
-            questions: 1
-        })))) {
-            res.status(400).json({
-                status: 'Invalid request. Answer all questions from /api/surveys/questions',
-            });
-            return;
+        if (!Set.fromKeys(responses).equals(Set((await surveyQuestions.findOne()).questions))) {
+                res.status(400).json({
+                    status: 'Invalid request. Answer all questions from /api/surveys/questions',
+                });
+                return;
         }
 
         if (!responses.every(response => typeof response === 'string')) {
@@ -114,7 +112,7 @@ export default withSession(async (req, res) => {
 
         if (await surveyResponses.findOne({
             completedBy: {
-                $eq: ObjectId(studentId)
+                $eq: ObjectId(sessionAccount._id)
             },
             course: {
                 $eq: ObjectId(course_id)
@@ -135,7 +133,7 @@ export default withSession(async (req, res) => {
 
         res.status(!!result.insertedId ? 200 : 500).json({
             status: !!result.insertedId
-                ? 'Successfully submitted survey response' 
+                ? 'Successfully submitted survey response'
                 : 'Could not submit survey response',
         });
     } else if (req.method === 'DELETE') {
@@ -190,7 +188,7 @@ export default withSession(async (req, res) => {
 
         res.status(result.deletedCount === 1 ? 200 : 500).json({
             status: result.deletedCount === 1
-                ? 'Successfully deleted account' 
+                ? 'Successfully deleted account'
                 : 'Could not delete account',
         });
     } else {

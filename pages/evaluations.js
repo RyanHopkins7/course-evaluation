@@ -2,6 +2,7 @@ import Head from 'next/head';
 import withSession from '../lib/session';
 import Header from '../components/header';
 import EvaluationsTable from '../components/evaluationsTable';
+import CreateEvalQuestionForm from '../components/createEvalQuestionForm';
 
 export default function Evaluations({ user, server }) {
     // Evaluations page
@@ -17,6 +18,8 @@ export default function Evaluations({ user, server }) {
             <h2>Evaluations</h2>
 
             <EvaluationsTable user={user} server={server} />
+
+            <CreateEvalQuestionForm user={user} server={server} />
         </div>
     );
 }
