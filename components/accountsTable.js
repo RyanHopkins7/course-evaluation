@@ -5,12 +5,16 @@ export default function AccountsTable(props) {
     const [accounts, setAccounts] = useState(List());
 
     useEffect(() => {
-        fetch(`${props.server}/api/accounts`)
-            .then(response => response.json())
-            .then(responseJson => {
-                setAccounts(fromJS(responseJson.accounts));
-            });
-    }, []);
+        if (props.accounts) {
+            setAccounts(props.accounts);
+        } else {
+            fetch(`${props.server}/api/accounts`)
+                .then(response => response.json())
+                .then(responseJson => {
+                    setAccounts(fromJS(responseJson.accounts));
+                });
+        }
+    }, [props.accounts]);
 
     return (
         <div>

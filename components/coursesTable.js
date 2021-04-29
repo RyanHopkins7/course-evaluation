@@ -3,19 +3,32 @@ import { List, Map, fromJS } from 'immutable';
 
 export default function CoursesTable(props) {
     const [courses, setCourses] = useState(List());
-    const [instructors, setInstructors] = useState(List());
 
+    // TODO: It might be better to use a single data structure for all accounts...
+    const [instructors, setInstructors] = useState(List());
+    const [students, setStudents] = useState(List());
+
+    // TODO: it'd be better to use coursesToAccounts to avoid repetition...
     // Map course_id -> instructors
     const [coursesToInstructors, setCoursesToInstructors] = useState(Map());
 
+    // Map course_id -> students
+    const [coursesToStudents, setCoursesToStudents] = useState(Map());
+
     useEffect(() => {
         // Set courses
-        fetch(`${props.server}/api/courses`)
-            .then(response => response.json())
-            .then(responseJson => {
-                setCourses(fromJS(responseJson.courses));
-            });
+        if (props.courses) {
+            setCourses(props.courses);
+        } else {
+            fetch(`${props.server}/api/courses`)
+                .then(response => response.json())
+                .then(responseJson => {
+                    setCourses(fromJS(responseJson.courses));
+                });
+        }
+    }, [props.courses]);
 
+    useEffect(() => {
         // Set instructors
         fetch(`${props.server}/api/accounts`)
             .then(response => response.json())
@@ -23,6 +36,16 @@ export default function CoursesTable(props) {
                 setInstructors(
                     fromJS(responseJson.accounts)
                         .filter(account => account.get('type') === 'instructors')
+                );
+            });
+
+        // Set students
+        fetch(`${props.server}/api/accounts`)
+            .then(response => response.json())
+            .then(responseJson => {
+                setStudents(
+                    fromJS(responseJson.accounts)
+                        .filter(account => account.get('type') === 'students')
                 );
             });
     }, []);
@@ -45,34 +68,23 @@ export default function CoursesTable(props) {
         });
     }, [courses]);
 
-    const createNewCourse = event => {
-        event.preventDefault();
-
-        const title = event.target.title.value;
-        const credits = event.target.credits.value;
-
-        fetch(`${props.server}/api/courses`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                title: title,
-                credits: credits
-            })
-        })
-            .then(response => response.json())
-            .then(responseJson => {
-                const insertedId = responseJson.insertedId;
-
-                fetch(`${props.server}/api/courses/${insertedId}`)
+    useEffect(() => {
+        // Get students for each course
+        courses.forEach(course => {
+            if (!coursesToStudents.has(course.get('_id'))) {
+                fetch(`${props.server}/api/courses/${course.get('_id')}/students`)
                     .then(response => response.json())
                     .then(responseJson => {
-                        setCourses(courses.push(fromJS(responseJson.course)));
-                    })
-            })
-    }
+                        setCoursesToStudents(prevStudents =>
+                            prevStudents.set(
+                                course.get('_id'),
+                                fromJS(responseJson.students)
+                            )
+                        );
+                    });
+            }
+        });
+    }, [courses]);
 
     const assignCourse = event => {
         event.preventDefault();
@@ -89,7 +101,7 @@ export default function CoursesTable(props) {
             }
         })
             .then(response => {
-                if (response.ok) {
+                if (response.ok && type == 'instructors') {
                     setCoursesToInstructors(prevCoursesToInstructors =>
                         prevCoursesToInstructors.set(
                             course_id,
@@ -109,6 +121,32 @@ export default function CoursesTable(props) {
                         )
                     );
                 }
+
+                if (response.ok && type == 'students') {
+                    setCoursesToStudents(prevCoursesToStudents =>
+                        prevCoursesToStudents.set(
+                            course_id,
+                            prevCoursesToStudents.has(course_id)
+                                ? prevCoursesToStudents
+                                    .get(course_id)
+                                    .push(
+                                        students
+                                            .filter(student => student.get('username') === username)
+                                            .first()
+                                    )
+                                : List([
+                                    students
+                                        .filter(student => student.get('username') === username)
+                                        .first()
+                                ])
+                        )
+                    );
+                }
+
+                return response.json();
+            })
+            .then(responseJson => {
+                console.log(responseJson);
             });
     }
 
@@ -140,14 +178,15 @@ export default function CoursesTable(props) {
                                     .entrySeq()
                                     .toList()
                                     .push(['instructors', null])
+                                    .push(['students', null])
                                     .map((entry, i) => {
                                         const [key, val] = entry;
 
                                         return (
                                             <td key={i}>
-                                                {key !== 'instructors'
-                                                    ? val
-                                                    :
+                                                {val}
+
+                                                {key === 'instructors' &&
                                                     <div>
                                                         {coursesToInstructors.get(course.get('_id'))
                                                             && coursesToInstructors.get(course.get('_id')).map(
@@ -170,6 +209,26 @@ export default function CoursesTable(props) {
                                                         }
                                                     </div>
                                                 }
+
+                                                {key === 'students' &&
+                                                    <div>
+                                                        {coursesToStudents.get(course.get('_id'))
+                                                            && coursesToStudents.get(course.get('_id')).map(
+                                                                (student, i) => <p key={i}>{student.get('username')}</p>
+                                                            )
+                                                        }
+
+                                                        {props.user.type === 'students' &&
+                                                            <form onSubmit={assignCourse}>
+                                                                <input type="hidden" name="course_id" value={course.get('_id')}></input>
+                                                                <input type="hidden" name="type" value='students'></input>
+                                                                <input type="hidden" name="username" value={props.user.username}></input>
+
+                                                                <button type="submit">Register</button>
+                                                            </form>
+                                                        }
+                                                    </div>
+                                                }
                                             </td>
                                         );
                                     })
@@ -180,32 +239,6 @@ export default function CoursesTable(props) {
 
                     </tbody>
                 </table>
-            }
-
-            {typeof window !== 'undefined' && window.location.pathname !== '/' &&
-                <form onSubmit={createNewCourse}>
-                    <h3>Create New Course</h3>
-
-                    <label htmlFor="title">Title</label>
-                    <input id="title" name="title" required />
-
-                    <br />
-
-                    <label htmlFor="credits">Credits</label>
-                    <select id="credits" name="credits" required>
-                        <option value="0">0</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                    </select>
-
-                    <br />
-
-                    <button type="submit">Create New Course</button>
-                </form>
             }
         </div>
     );

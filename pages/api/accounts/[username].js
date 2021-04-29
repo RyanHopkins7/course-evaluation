@@ -67,6 +67,7 @@ export default withSession(async (req, res) => {
                     _id: account._id,
                     username: account.username,
                     type: account.type,
+                    courses: account.courses,
                 },
             });
         }
@@ -119,15 +120,15 @@ export default withSession(async (req, res) => {
             return;
         }
 
-        await req.session.destroy();
-
-        req.session.set('user', {
-            _id: newAccount.insertedId,
-            username: username,
-            type: accountType,
-        });
-
-        await req.session.save();
+        if (!user) {
+            req.session.set('user', {
+                _id: newAccount.insertedId,
+                username: username,
+                type: accountType,
+            });
+    
+            await req.session.save();
+        }
 
         res.status(201).json({
             status: 'Successfully created account',

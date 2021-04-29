@@ -2,8 +2,9 @@ import Head from 'next/head';
 import withSession from '../lib/session';
 import Header from '../components/header';
 import AccountsTable from '../components/accountsTable';
-import Link from 'next/link';
 import CoursesTable from '../components/coursesTable';
+import EvaluationsTable from '../components/evaluationsTable';
+import Link from 'next/link';
 
 export default function Home({ user, server }) {
     // Home page
@@ -29,6 +30,8 @@ export default function Home({ user, server }) {
                     <a>Evaluations</a>
                 </Link>
             </h2>
+
+            <EvaluationsTable user={user} server={server} />
 
             {user.type === 'admin' &&
                 <div>

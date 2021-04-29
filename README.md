@@ -12,9 +12,19 @@ yarn dev
 ```
 
 ## Requirements
-1. Create accounts Alice and Jon and log in
-2. Create course CS1011 and assign Jon to teach it
-3. Alice registers for CS1011
-4. Alice takes survey of CS1011
-5. Jon lists the roster for CS1011
-6. Jon reviews the survey responses for CS1011
+Admin:
+    create a course
+    create a student
+    create an instructor
+    assign an instructor to a course
+
+Student:
+    login and change password
+    register a course 
+    take the survey
+    check the survey status (completion date and time)
+
+Instructor:
+    log in 
+    show student list for a course
+    check the survey result for a course (response rate, frequency and percentage of multiple choice questions, and text answer for essay questions)

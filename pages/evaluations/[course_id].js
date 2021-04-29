@@ -1,10 +1,11 @@
+import { useRouter } from 'next/router';
+import Header from '../../components/header';
+import withSession from '../../lib/session';
 import Head from 'next/head';
-import withSession from '../lib/session';
-import Header from '../components/header';
-import EvaluationsTable from '../components/evaluationsTable';
 
-export default function Evaluations({ user, server }) {
-    // Evaluations page
+export default function Evaluation({ user, server }) {
+    const router = useRouter();
+    const { course_id } = router.query;
 
     return (
         <div>
@@ -14,11 +15,9 @@ export default function Evaluations({ user, server }) {
 
             <Header user={user} />
 
-            <h2>Evaluations</h2>
-
-            <EvaluationsTable user={user} server={server} />
+            <p>{course_id}</p>
         </div>
-    );
+    )
 }
 
 export const getServerSideProps = withSession(async function ({ req, res }) {

@@ -2,6 +2,7 @@ import Head from 'next/head';
 import withSession from '../lib/session';
 import Header from '../components/header';
 import AccountsTable from '../components/accountsTable';
+import CreateAccountForm from '../components/createAccountForm';
 import { List, fromJS } from 'immutable';
 import { useState, useEffect } from 'react';
 
@@ -27,7 +28,13 @@ export default function Accounts({ user, server }) {
 
             <h2>Accounts</h2>
 
-            <AccountsTable server={server} />
+            <AccountsTable accounts={accounts} />
+
+            <CreateAccountForm 
+                redirect={false} 
+                addAccount={(account) => setAccounts((prevAccounts) => prevAccounts.push(account))} 
+                server={server} />
+
         </div>
     );
 }
